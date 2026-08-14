@@ -1,0 +1,13 @@
+{
+  "name": "totoist",
+  "version": "0.1.0",
+  "description": "A tiny todo list that lives on your desktop.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^43.4.0"
+  }
+}

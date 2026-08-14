@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>totoist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #f7f7f5;
+    color: #2b2b28;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 14px 8px;
+  }
+
+  h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-right: auto;
+  }
+
+  .btn {
+    border: 1px solid #ddd9d2;
+    background: #fff;
+    color: #4a4a45;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+
+  .btn:hover { background: #f0efe9; }
+
+  #status {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #7a8b6f;
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+  }
+
+  #status.show { opacity: 1; }
+
+  .add-row {
+    display: flex;
+    gap: 6px;
+    padding: 4px 14px 10px;
+  }
+
+  #new-item {
+    flex: 1;
+    border: 1px solid #ddd9d2;
+    background: #fff;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  #new-item:focus { border-color: #b9c4ae; }
+
+  ul#list {
+    flex: 1;
+    overflow-y: auto;
+    list-style: none;
+    padding: 2px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #e7e4dd;
+    border-radius: 9px;
+    padding: 8px 10px;
+    cursor: default;
+  }
+
+  .item.dragging { opacity: .35; }
+
+  .handle {
+    width: 8px;
+    height: 16px;
+    flex-shrink: 0;
+    background-image: radial-gradient(circle, #c2beb4 1.2px, transparent 1.3px);
+    background-size: 5px 8px;
+    cursor: grab;
+  }
+
+  .item input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    accent-color: #6f8b5e;
+    cursor: pointer;
+  }
+
+  .text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.35;
+    word-break: break-word;
+    user-select: text;
+  }
+
+  .item.done .text {
+    text-decoration: line-through;
+    color: #a8a49b;
+  }
+
+  .del {
+    border: none;
+    background: none;
+    color: #c2beb4;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    visibility: hidden;
+  }
+
+  .item:hover .del { visibility: visible; }
+  .del:hover { color: #c0684f; }
+
+  .empty {
+    text-align: center;
+    color: #b5b1a7;
+    font-size: 13px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>totoist</h1>
+  <span id="status"></span>
+  <button class="btn" id="load-btn">Load</button>
+  <button class="btn" id="save-btn">Save</button>
+</header>
+
+<div class="add-row">
+  <input id="new-item" type="text" placeholder="Add a todo…" autocomplete="off" />
+</div>
+
+<ul id="list"></ul>
+
+<script>
+const list = document.getElementById('list');
+const input = document.getElementById('new-item');
+const statusEl = document.getElementById('status');
+const STORAGE_KEY = 'totoist.items';
+
+let items = loadFromStorage();
+let dragId = null;
+let dragEl = null;
+
+function uid() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(i => i && typeof i.text === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+function flash(msg) {
+  statusEl.textContent = msg;
+  statusEl.classList.add('show');
+  clearTimeout(flash.t);
+  flash.t = setTimeout(() => statusEl.classList.remove('show'), 1500);
+}
+
+function render() {
+  list.innerHTML = '';
+  if (items.length === 0) {
+    const div = document.createElement('div');
+    div.className = 'empty';
+    div.textContent = 'All clear.';
+    list.appendChild(div);
+    return;
+  }
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.className = 'item' + (item.done ? ' done' : '');
+    li.draggable = true;
+    li.dataset.id = item.id;
+
+    const handle = document.createElement('span');
+    handle.className = 'handle';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = item.done;
+    cb.addEventListener('change', () => {
+      item.done = cb.checked;
+      li.classList.toggle('done', item.done);
+      persist();
+    });
+
+    const text = document.createElement('span');
+    text.className = 'text';
+    text.textContent = item.text;
+
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = '×';
+    del.title = 'Delete';
+    del.addEventListener('click', () => {
+      items = items.filter(i => i.id !== item.id);
+      persist();
+      render();
+    });
+
+    li.append(handle, cb, text, del);
+    list.appendChild(li);
+  }
+}
+
+function addItem() {
+  const text = input.value.trim();
+  if (!text) return;
+  items.push({ id: uid(), text, done: false });
+  input.value = '';
+  persist();
+  render();
+  input.focus();
+}
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addItem();
+});
+
+list.addEventListener('dragstart', (e) => {
+  const li = e.target.closest('.item');
+  if (!li) return;
+  dragId = li.dataset.id;
+  dragEl = li;
+  li.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', '');
+});
+
+list.addEventListener('dragover', (e) => {
+  if (!dragEl) return;
+  e.preventDefault();
+  const li = e.target.closest('.item');
+  if (!li || li === dragEl) return;
+  const rect = li.getBoundingClientRect();
+  const after = e.clientY - rect.top > rect.height / 2;
+  list.insertBefore(dragEl, after ? li.nextSibling : li);
+});
+
+list.addEventListener('drop', (e) => e.preventDefault());
+
+list.addEventListener('dragend', () => {
+  if (!dragEl) return;
+  dragEl.classList.remove('dragging');
+  const order = [...list.querySelectorAll('.item')].map(li => li.dataset.id);
+  items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  dragId = null;
+  dragEl = null;
+  persist();
+});
+
+function toText() {
+  return items.map(i => (i.done ? '- [x] ' : '- [ ] ') + i.text).join('\n');
+}
+
+function parseText(txt) {
+  return txt
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(line => {
+      const m = line.match(/^-\s*\[([ xX])\]\s*(.*)$/);
+      if (m) return { id: uid(), text: m[2], done: m[1].toLowerCase() === 'x' };
+      return { id: uid(), text: line, done: false };
+    })
+    .filter(i => i.text.length > 0);
+}
+
+async function saveList() {
+  const ok = await window.totoist.saveFile(toText());
+  if (ok) flash('Saved');
+}
+
+async function loadList() {
+  const txt = await window.totoist.loadFile();
+  if (txt === null) return;
+  items = parseText(txt);
+  persist();
+  render();
+  flash('Loaded');
+}
+
+document.getElementById('save-btn').addEventListener('click', saveList);
+document.getElementById('load-btn').addEventListener('click', loadList);
+
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    saveList();
+  }
+});
+
+render();
+input.focus();
+</script>
+</body>
+</html>
