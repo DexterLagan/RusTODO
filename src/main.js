@@ -56,8 +56,9 @@ function render() {
     cb.checked = item.done;
     cb.addEventListener("change", () => {
       item.done = cb.checked;
-      li.classList.toggle("done", item.done);
+      settleOrder(item);
       persist();
+      render();
     });
 
     const text = document.createElement("span");
@@ -77,6 +78,15 @@ function render() {
     li.append(handle, cb, text, del);
     list.appendChild(li);
   }
+}
+
+function settleOrder(item) {
+  const idx = items.indexOf(item);
+  if (idx === -1) return;
+  items.splice(idx, 1);
+  const firstDone = items.findIndex((i) => i.done);
+  if (firstDone === -1) items.push(item);
+  else items.splice(firstDone, 0, item);
 }
 
 function addItem() {
