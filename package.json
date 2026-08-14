@@ -2,12 +2,17 @@
   "name": "totoist",
   "version": "0.1.0",
   "description": "A tiny todo list that lives on your desktop.",
-  "main": "main.js",
+  "type": "module",
   "scripts": {
-    "start": "electron ."
+    "dev": "vite",
+    "tauri": "tauri"
   },
   "license": "MIT",
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1"
+  },
   "devDependencies": {
-    "electron": "^43.4.0"
+    "@tauri-apps/cli": "^2.11.4",
+    "vite": "^8.2.1"
   }
 }
