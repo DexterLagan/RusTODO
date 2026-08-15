@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Rustodo",
+  "productName": "RusTODO",
   "version": "0.1.0",
   "identifier": "com.dexterlagan.rustodo",
   "build": {
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Rustodo",
+        "title": "RusTODO",
         "width": 300,
         "height": 580,
         "minWidth": 260,

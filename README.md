@@ -1,4 +1,4 @@
-# Rustodo
+# RusTODO
 
 A tiny, fast todo list that lives on your desktop. Built with **Rust** and [Tauri v2](https://tauri.app) on the backend and plain vanilla JavaScript on the frontend — no framework, no network, no telemetry.
 
