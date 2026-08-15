@@ -6,7 +6,7 @@ use rfd::FileDialog;
 fn save_file(content: String) -> Result<bool, String> {
     let path = FileDialog::new()
         .set_title("Save todo list")
-        .set_file_name("totoist.txt")
+        .set_file_name("rustodo.txt")
         .save_file();
     match path {
         Some(p) => {
@@ -30,5 +30,5 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![save_file, load_file])
         .run(tauri::generate_context!())
-        .expect("error while running totoist");
+        .expect("error while running rustodo");
 }

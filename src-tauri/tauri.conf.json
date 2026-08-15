@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "totoist",
+  "productName": "Rustodo",
   "version": "0.1.0",
-  "identifier": "com.dexterlagan.totoist",
+  "identifier": "com.dexterlagan.rustodo",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "totoist",
+        "title": "Rustodo",
         "width": 300,
         "height": 580,
         "minWidth": 260,

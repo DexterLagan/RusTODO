@@ -1,5 +1,5 @@
 [package]
-name = "totoist"
+name = "rustodo"
 version = "0.1.0"
 description = "A tiny todo list that lives on your desktop."
 edition = "2021"

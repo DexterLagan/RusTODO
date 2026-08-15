@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 const list = document.getElementById("list");
 const input = document.getElementById("new-item");
 const statusEl = document.getElementById("status");
-const STORAGE_KEY = "totoist.items";
+const STORAGE_KEY = "rustodo.items";
 
 let items = loadFromStorage();
 let dragState = null;
@@ -14,7 +14,7 @@ function uid() {
 
 function loadFromStorage() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("totoist.items");
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.filter((i) => i && typeof i.text === "string") : [];
