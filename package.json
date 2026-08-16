@@ -1,10 +1,11 @@
 {
   "name": "rustodo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "RusTODO — a tiny todo list that lives on your desktop.",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
     "tauri": "tauri"
   },
   "license": "MIT",
