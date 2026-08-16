@@ -93,7 +93,7 @@
     border: 1px solid #e7e4dd;
     border-radius: 9px;
     padding: 8px 10px;
-    cursor: default;
+    cursor: pointer;
   }
 
   .item.dragging { opacity: .35; }
@@ -144,9 +144,71 @@
 
   .empty {
     text-align: center;
-    color: #b5b1a7;
+    color: #b3afa6;
     font-size: 13px;
-    margin-top: 40px;
+    padding-top: 28px;
+  }
+
+  #edit-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(43, 43, 40, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  #edit-overlay[hidden] {
+    display: none;
+  }
+
+  .edit-card {
+    width: min(280px, calc(100vw - 40px));
+    background: #fff;
+    border: 1px solid #e2ded6;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .edit-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #a09c92;
+  }
+
+  #edit-input {
+    border: 1px solid #ddd9d2;
+    background: #fff;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  #edit-input:focus {
+    border-color: #b9c4ae;
+  }
+
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: #6f8b5e;
+    border-color: #6f8b5e;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #637c54;
   }
 </style>
 </head>
@@ -163,6 +225,17 @@
 </div>
 
 <ul id="list"></ul>
+
+<div id="edit-overlay" hidden>
+  <div class="edit-card">
+    <div class="edit-label">Edit todo</div>
+    <input id="edit-input" type="text" autocomplete="off" spellcheck="false" />
+    <div class="edit-actions">
+      <button class="btn" id="edit-cancel">Cancel</button>
+      <button class="btn btn-primary" id="edit-save">Save</button>
+    </div>
+  </div>
+</div>
 
 <script type="module" src="/src/main.js"></script>
 </body>

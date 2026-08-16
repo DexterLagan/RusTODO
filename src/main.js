@@ -3,10 +3,14 @@ import { invoke } from "@tauri-apps/api/core";
 const list = document.getElementById("list");
 const input = document.getElementById("new-item");
 const statusEl = document.getElementById("status");
+const editOverlay = document.getElementById("edit-overlay");
+const editInput = document.getElementById("edit-input");
 const STORAGE_KEY = "rustodo.items";
 
 let items = loadFromStorage();
 let dragState = null;
+let editTarget = null;
+let suppressClick = false;
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -58,7 +62,7 @@ function render() {
       item.done = cb.checked;
       settleOrder(item);
       persist();
-      render();
+      setTimeout(render, 0);
     });
 
     const text = document.createElement("span");
@@ -103,6 +107,61 @@ input.addEventListener("keydown", (e) => {
   if (e.key === "Enter") addItem();
 });
 
+function openEditor(item) {
+  if (dragState) return;
+  editTarget = item;
+  editInput.value = item.text;
+  editOverlay.hidden = false;
+  editInput.focus();
+  editInput.select();
+}
+
+function closeEditor() {
+  editOverlay.hidden = true;
+  editTarget = null;
+}
+
+function commitEdit() {
+  const item = editTarget;
+  if (!item) return;
+  const text = editInput.value.trim();
+  closeEditor();
+  if (text) {
+    item.text = text;
+    persist();
+    render();
+  }
+}
+
+document.getElementById("edit-cancel").addEventListener("click", closeEditor);
+document.getElementById("edit-save").addEventListener("click", commitEdit);
+editOverlay.addEventListener("click", (e) => {
+  if (e.target === editOverlay) closeEditor();
+});
+editInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    commitEdit();
+  }
+});
+
+list.addEventListener(
+  "click",
+  (e) => {
+    if (suppressClick) {
+      suppressClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    const li = e.target.closest(".item");
+    if (!li || e.target.closest("input,button")) return;
+    const item = items.find((i) => i.id === li.dataset.id);
+    if (item) openEditor(item);
+  },
+  true
+);
+
 function placeDragged(el, clientY) {
   const siblings = [...list.querySelectorAll(".item")].filter((n) => n !== el);
   for (const sib of siblings) {
@@ -119,6 +178,7 @@ list.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   const li = e.target.closest(".item");
   if (!li || e.target.closest("input,button")) return;
+  suppressClick = false;
   dragState = { el: li, startY: e.clientY, moved: false };
   li.setPointerCapture(e.pointerId);
 });
@@ -140,6 +200,7 @@ list.addEventListener("pointerup", () => {
   dragState.el.classList.remove("dragging");
   dragState = null;
   if (moved) {
+    suppressClick = true;
     const order = [...list.querySelectorAll(".item")].map((li) => li.dataset.id);
     items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
     persist();
@@ -181,6 +242,10 @@ document.getElementById("save-btn").addEventListener("click", saveList);
 document.getElementById("load-btn").addEventListener("click", loadList);
 
 window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !editOverlay.hidden) {
+    closeEditor();
+    return;
+  }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
     e.preventDefault();
     saveList();
