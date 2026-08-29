@@ -2,6 +2,11 @@ name: Windows build
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to attach Windows artifacts to (e.g. v1.1.0)"
+        required: true
+        default: "v1.1.0"
 
 permissions:
   contents: write
@@ -30,6 +35,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload v1.0.0 --clobber \
+          gh release upload "${{ github.event.inputs.release_tag }}" --clobber \
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe \
             src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
