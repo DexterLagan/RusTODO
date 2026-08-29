@@ -241,6 +241,21 @@ async function loadList() {
 document.getElementById("save-btn").addEventListener("click", saveList);
 document.getElementById("load-btn").addEventListener("click", loadList);
 
+const themeBtn = document.getElementById("theme-btn");
+function updateThemeLabel() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  themeBtn.title = dark ? "Switch to light mode" : "Switch to dark mode";
+  themeBtn.setAttribute("aria-label", themeBtn.title);
+}
+themeBtn.addEventListener("click", () => {
+  const next =
+    document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("rustodo.theme", next);
+  updateThemeLabel();
+});
+updateThemeLabel();
+
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !editOverlay.hidden) {
     closeEditor();
