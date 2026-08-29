@@ -21,6 +21,7 @@
     --muted: #a8a49b;
     --faint: #b3afa6;
     --label: #a09c92;
+    --placeholder: #9a978f;
     --card-border: #e2ded6;
     --accent: #6f8b5e;
     --accent-hover: #637c54;
@@ -45,6 +46,7 @@
     --muted: #6f6b60;
     --faint: #6b675c;
     --label: #8a8678;
+    --placeholder: #6f6b60;
     --card-border: #3a3a33;
     --accent: #85a172;
     --accent-hover: #93ad80;
@@ -136,10 +138,16 @@
     flex: 1;
     border: 1px solid var(--border-2);
     background: var(--card);
+    color: var(--fg);
+    -webkit-text-fill-color: var(--fg);
     border-radius: 8px;
     padding: 7px 10px;
     font-size: 13px;
     outline: none;
+  }
+
+  #new-item::placeholder {
+    color: var(--placeholder);
   }
 
   #new-item:focus { border-color: var(--focus); }
@@ -254,10 +262,16 @@
   #edit-input {
     border: 1px solid var(--border-2);
     background: var(--card);
+    color: var(--fg);
+    -webkit-text-fill-color: var(--fg);
     border-radius: 8px;
     padding: 7px 10px;
     font-size: 13px;
     outline: none;
+  }
+
+  #edit-input::placeholder {
+    color: var(--placeholder);
   }
 
   #edit-input:focus {
