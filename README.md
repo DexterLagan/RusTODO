@@ -10,6 +10,7 @@ A tiny, fast todo list that lives on your desktop. Built with **Rust** and [Taur
 - **Drag & drop** — reorder anything with the handle, no external drag libraries
 - **Persistent** — your list is saved locally and survives restarts
 - **Plain-text Save / Load** — export or import your list as a Markdown-style checklist (`- [x]` / `- [ ]`) through native file dialogs; `⌘S` / `Ctrl+S` saves
+- **Dark mode** - switch between light and dark mode via a simple button, state is saved between sessions
 - **Zero footprint** — one small window, no accounts, no sync, no bloat
 
 ## Getting started
