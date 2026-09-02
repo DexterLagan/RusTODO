@@ -1,6 +1,6 @@
 {
   "name": "rustodo",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "RusTODO — a tiny todo list that lives on your desktop.",
   "type": "module",
   "scripts": {
