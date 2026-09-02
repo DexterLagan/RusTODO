@@ -96,7 +96,7 @@ function settleOrder(item) {
 function addItem() {
   const text = input.value.trim();
   if (!text) return;
-  items.push({ id: uid(), text, done: false });
+  items.unshift({ id: uid(), text, done: false });
   input.value = "";
   persist();
   render();
